@@ -92,18 +92,21 @@ function actionPage() {
     min = document.getElementById('min'),
     max = document.getElementById('max'),
     search = document.querySelector('.search-wrapper_input'),
-    searchBtn = document.querySelector('.search-btn');
+    searchBtn = document.querySelector('.search-btn'),
+    goods = document.querySelector('.goods');
+   
 
   discountCheckbox.addEventListener('click', () => {
     cards.forEach((card) => {
       if (discountCheckbox.checked) {
         if (!card.querySelector('.card-sale')) {
-          card.parentNode.style.display = 'none';
+          card.parentNode.remove();
         }
       } else {
-        card.parentNode.style.display = '';
+        goods.appendChild(card.parentNode);
       }
     });
+
   });
 
   function filterPrice() {
@@ -111,10 +114,9 @@ function actionPage() {
       const cardPrice = card.querySelector('.card-price');
       const price = parseFloat(cardPrice.textContent);
       if (price < parseFloat(min.value) || price > parseFloat(max.value)) {
-
-        card.parentNode.style.display = 'none';
+        card.parentNode.remove();
       } else {
-        card.parentNode.style.display = '';
+        goods.appendChild(card.parentNode);
       }
     });
   }
