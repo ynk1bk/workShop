@@ -8,17 +8,15 @@ function toggleCheckbox() {
     elem.addEventListener('change', function () {
       if (this.checked) {
         this.nextElementSibling.classList.add('checked');
-        console.log("cheked");
       } else {
         this.nextElementSibling.classList.remove('checked');
-        console.log("no-cheked");
       }
     });
   });
 
 }
-
 //end chekckbox
+
 // basket
 function toggleBasket() {
   const btnCart = document.getElementById('cart');
@@ -35,7 +33,6 @@ function toggleBasket() {
     document.body.style.overflow = '';
   });
 }
-
 //end basket
 
 //work with product in basket
@@ -82,7 +79,6 @@ function addCart() {
     }
   }
 }
-
 //end work with product in basket
 
 //sales filter
@@ -94,28 +90,28 @@ function actionPage() {
     search = document.querySelector('.search-wrapper_input'),
     searchBtn = document.querySelector('.search-btn'),
     goods = document.querySelector('.goods');
-   
 
-  discountCheckbox.addEventListener('click',filter);
+  discountCheckbox.addEventListener('click', filter);
   min.addEventListener('change', filter);
   max.addEventListener('change', filter);
 
-  function filter(){
-    cards.forEach((card)=>{
+  function filter() {
+    cards.forEach((card) => {
       const cardPrice = card.querySelector('.card-price');
       const price = parseFloat(cardPrice.textContent);
       const discount = card.querySelector('.card-sale');
 
       if (price < parseFloat(min.value) || price > parseFloat(max.value)) {
         card.parentNode.remove();
-      }else if(discountCheckbox.checked && !discount){
+      } else if (discountCheckbox.checked && !discount) {
         card.parentNode.remove();
-      } else{
+      } else {
         goods.appendChild(card.parentNode);
       }
 
     });
   }
+
   searchBtn.addEventListener('click', () => {
     const searchText = new RegExp(search.value.trim(), 'i');
     cards.forEach((card) => {
@@ -126,12 +122,93 @@ function actionPage() {
         card.parentNode.style.display = '';
       }
     });
-
     search.value = '';
   });
 }
 //end sales filter
-toggleCheckbox();
-toggleBasket();
-addCart();
-actionPage();
+
+// get data from server
+
+function getData() {
+  const goodsWrapper = document.querySelector('.goods');
+
+  return fetch('../db/db.json')
+    .then((res)=>{
+      if(res.ok){ return res.json();}else{throw new Error(res.status);}
+    })
+    .then((data)=>{
+      return data;      
+    })
+    .catch((err)=>{
+      console.log(err);
+      goodsWrapper.innerHTML = '<div style="color:red"> Упс что-то пошло не так!!!.</div>';
+    });
+    
+}
+//вывод карточки товара
+function renderCards(data){
+  const goodsWrapper = document.querySelector('.goods');
+  data.goods.forEach((good)=>{
+    const card = document.createElement('div');
+    card.className='col-12 col-md-6 col-lg-4 col-xl-3';
+    card.innerHTML = `
+    <div class="card" data-category = "${good.category}">
+      ${good.sale ? '<div class="card-sale">🔥Hot Sale🔥</div>' : ''}
+      <div class="card-img-wrapper">
+        <span class="card-img-top"
+          style="background-image: url('${good.img}')"></span>
+        </div>
+        <div class="card-body justify-content-between">
+          <div class="card-price">${good.price} </div>
+          <h5 class="card-title">${good.title}</h5>
+          <button class="btn btn-primary">В корзину</button>
+        </div>
+      </div>`;
+    goodsWrapper.appendChild(card);
+  });
+}
+
+//en get data from server
+function renderCatalog(){
+  const cards = document.querySelectorAll('.goods .card');
+  const categories = new Set();
+  const cataloList = document.querySelector('.catalog-list');
+  const catalogBtn = document.querySelector('.catalog-button');
+  const catalogWrapper = document.querySelector('.catalog');
+
+  cards.forEach((card)=>{    
+    categories.add(card.dataset.category);   
+  });
+  categories.forEach((item)=>{
+    const li = document.createElement('li');
+    li.textContent= item;
+    cataloList.appendChild(li);
+  });
+
+  catalogBtn.addEventListener('click',(event)=>{
+    if(!catalogWrapper.style.display){catalogWrapper.style.display = "block";}
+    else{catalogWrapper.style.display = "";}
+    if(event.target.tagName === 'LI'){
+      cards.forEach((card)=>{
+        if(card.dataset.category !== event.target.textContent){
+          card.parentNode.style.display = 'none';
+        }else {
+          card.parentNode.style.display = 'flex';
+        }
+
+      });
+    }
+  });
+ 
+}
+
+getData()
+.then((data)=>{
+  renderCards(data);
+  toggleCheckbox();
+  toggleBasket();
+  addCart();
+  actionPage();
+  renderCatalog();
+}).catch();
+
