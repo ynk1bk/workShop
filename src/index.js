@@ -49,14 +49,33 @@ cards.forEach((card)=>{
     btn.addEventListener('click',()=>{
        const cardClone = card.cloneNode(true); 
        cartWrapper.appendChild(cardClone);  
-       cartEmpty.remove(); 
-       countProducts.textContent = showData();      
+       showData();      
+
+       const removeBtn = cardClone.querySelector('.btn');
+       removeBtn.textContent="Удалить из корзины";
+        removeBtn.addEventListener('click',()=>{
+            cardClone.remove();
+            showData();  
+        });
     });
 });
 
 function showData(){
-    const cardsCart = cartWrapper.querySelectorAll('.card');
-    return cardsCart.length;
+    const cardsCart = cartWrapper.querySelectorAll('.card'),
+    cardsPrice = cartWrapper.querySelectorAll('.card-price'), 
+    cardTotal = document.querySelector('.cart-total span');
+
+    countProducts.textContent = cardsCart.length;
+
+    let sum = 0;
+    cardsPrice.forEach((cardPrice)=>{
+       sum += parseFloat(cardPrice.textContent);
+    });
+
+    cardTotal.textContent = sum;
+
+    if(cardsCart.length !== 0){cartEmpty.remove();} 
+    else{ cartWrapper.appendChild(cartEmpty); }
 }
 
 //end work with product in basket
