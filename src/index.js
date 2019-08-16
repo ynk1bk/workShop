@@ -96,33 +96,26 @@ function actionPage() {
     goods = document.querySelector('.goods');
    
 
-  discountCheckbox.addEventListener('click', () => {
-    cards.forEach((card) => {
-      if (discountCheckbox.checked) {
-        if (!card.querySelector('.card-sale')) {
-          card.parentNode.remove();
-        }
-      } else {
-        goods.appendChild(card.parentNode);
-      }
-    });
+  discountCheckbox.addEventListener('click',filter);
+  min.addEventListener('change', filter);
+  max.addEventListener('change', filter);
 
-  });
-
-  function filterPrice() {
-    cards.forEach((card) => {
+  function filter(){
+    cards.forEach((card)=>{
       const cardPrice = card.querySelector('.card-price');
       const price = parseFloat(cardPrice.textContent);
+      const discount = card.querySelector('.card-sale');
+
       if (price < parseFloat(min.value) || price > parseFloat(max.value)) {
         card.parentNode.remove();
-      } else {
+      }else if(discountCheckbox.checked && !discount){
+        card.parentNode.remove();
+      } else{
         goods.appendChild(card.parentNode);
       }
+
     });
   }
-  min.addEventListener('change', filterPrice);
-  max.addEventListener('change', filterPrice);
-
   searchBtn.addEventListener('click', () => {
     const searchText = new RegExp(search.value.trim(), 'i');
     cards.forEach((card) => {
